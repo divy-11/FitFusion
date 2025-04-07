@@ -1,13 +1,11 @@
 const express = require("express");
 const app = express();
-const cors = require("cors");
-const RouterApp=require("./routes/index")
-const { connectDB } = require("./db");
+const RouterApp = require("./routes/index")
 require('dotenv').config();
-app.use(cors());
 app.use(express.json());
+const mongoose = require('mongoose');
 
-app.use("/api", RouterApp);
+app.use("/", RouterApp);
 
 app.get("/", (req, res) => {
     res.send("Following are the routes:")
@@ -26,4 +24,4 @@ const connectDB = async () => {
     }
 };
 connectDB()
-app.listen(3006);
+app.listen(8006);

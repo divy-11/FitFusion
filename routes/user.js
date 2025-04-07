@@ -20,9 +20,9 @@ const registerSchema = z.object({
 app.post('/', async (req, res) => {
     const safeData = registerSchema.safeParse(req.body);
     if (!safeData.success) {
-        return res.status(400).json({ errors: result.error.flatten().fieldErrors });
+        return res.status(400).json({ errors: safeData.error.flatten().fieldErrors });
     }
-    const { email, password, profile } = safeData.body;
+    const { email, password, profile } = safeData.data;
 
     try {
         const userCheck = await User.findOne({ email });
@@ -42,6 +42,7 @@ app.post('/', async (req, res) => {
 
 app.get('/:id', async (req, res) => {
     try {
+        // const user = await User.findById(req.params.id);
         const user = await User.findById(req.params.id).select('-password');
         if (!user) return res.status(404).json({ msg: 'User not found' });
         res.json(user);
@@ -59,19 +60,19 @@ const loginSchema = z.object({
 app.post('/login', async (req, res) => {
     const safeData = loginSchema.safeParse(req.body)
     if (!safeData.success) {
-        return res.status(400).json({ errors: result.error.flatten().fieldErrors });
+        return res.status(400).json({ errors: safeData.error.flatten().fieldErrors });
     }
-    const { email, password } = safeData.body
+    const { email, password } = safeData.data
 
     try {
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ msg: 'Incorrect password' });
-
+        
+        const checkPass = await bcrypt.compare(password, user.password);
+        // console.log(checkPass);
+        if (!checkPass) return res.status(400).json({ msg: 'Incorrect password' });
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        res.json({ token, userId: user._id });
+        res.json({ token: `Bearer ${token}` });
 
     } catch (err) {
         res.status(500).json({ error: err.message });

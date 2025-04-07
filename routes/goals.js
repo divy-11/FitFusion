@@ -2,38 +2,33 @@ const express = require('express');
 const app = express.Router();
 const z = require('zod');
 const Goal = require('../models/Goal');
+const authUser = require('../middleware/middleware');
 
 const goalSchema = z.object({
     userId: z.string(),
-    type: z.string(),
-    target: z.number(),
-    deadline: z.string().datetime().optional() 
+    fitnessGoal: z.string(),
+    targetWeight: z.number(),
+    targetDate: z.string().datetime().optional()
 });
 
 
-app.post('/', async (req, res) => {
-    const result = goalSchema.safeParse(req.body);
+app.post('/', authUser, async (req, res) => {
+    // console.log(req.user);
+    if (!req.user.id) {
+        return res.status(401).json({ message: "Please login first." });
+    }
+    const result = goalSchema.safeParse({ userId: req.user.id, ...req.body });
     if (!result.success) {
         return res.status(400).json({ errors: result.error.flatten().fieldErrors });
     }
 
     try {
-        const goal = new Goal(result.data);
-        await goal.save();
+        const goal = await Goal.create(result.data)
         res.status(201).json({ msg: 'Goal set successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-
-app.get('/:userId', async (req, res) => {
-    try {
-        const goals = await Goal.find({ userId: req.params.userId }).sort({ deadline: 1 });
-        res.json(goals);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
 module.exports = app;

@@ -5,7 +5,7 @@ const activityRoute = require("./activity")
 const goalRoute = require("./goals")
 
 RouterApp.use("/users", userRoute)
-// RouterApp.use("/activities", activityRoute)
-// RouterApp.use("/goals", goalRoute)
+RouterApp.use("/activities", activityRoute)
+RouterApp.use("/goals", goalRoute)
 
 module.exports = RouterApp
