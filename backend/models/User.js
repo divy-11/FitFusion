@@ -13,17 +13,25 @@ const UserSchema = new Schema({
     },
     profile: {
         age: {
-            type: Number
+            type: Number,
+            required: true
         },
         weight: {
-            type: Number
+            type: Number,
+            required: true
         },
         height: {
-            type: Number
+            type: Number,
+            required: true
         },
         fitnessGoals: {
-            type: String
-        }
+            type: [String],
+            default: []
+        },
+        targetWeight: {
+            type: Number,
+            required: true
+        },
     }
 }, {
     timestamps: true

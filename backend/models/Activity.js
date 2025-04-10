@@ -7,11 +7,11 @@ const ActivitySchema = new Schema({
         ref: 'User',
         required: true
     },
-    activityType: {
+    activityType: { //Cardio, Strength, Yoga, HIIT, Cycling, Running
         type: String,
         required: true
     },
-    duration: { type: Number },
+    duration: { type: Number }, //MINUTES
     caloriesBurned: { type: Number },
     timestamp: {
         type: Date,

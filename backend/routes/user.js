@@ -5,15 +5,27 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const z = require('zod');
 
+const validGoals = [
+    'Muscle Gain (Hypertrophy)',
+    'Fat Loss / Weight Loss',
+    'Strength Building',
+    'Endurance Improvement',
+    'Flexibility & Mobility',
+    'Athletic Performance',
+    'General Health & Longevity',
+    'Mental Wellness & Stress Relief'
+];
+
 const registerSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
     profile: z.object({
-        age: z.number().min(0).optional(),
-        weight: z.number().optional(),
-        height: z.number().optional(),
-        fitnessGoals: z.string().optional()
-    }).optional()
+        age: z.number().min(0),
+        weight: z.number(),
+        height: z.number(),
+        fitnessGoals: z.array(z.enum(validGoals)),
+        targetWeight: z.number(),
+    })
 });
 
 
@@ -67,7 +79,7 @@ app.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ msg: 'User not found' });
-        
+
         const checkPass = await bcrypt.compare(password, user.password);
         // console.log(checkPass);
         if (!checkPass) return res.status(400).json({ msg: 'Incorrect password' });
