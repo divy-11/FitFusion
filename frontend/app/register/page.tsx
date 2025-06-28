@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Activity, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/axios"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -30,8 +31,9 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
+    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     if (formData.password !== formData.confirmPassword) {
+      console.log("MISMATCH");
       toast({
         title: "Password mismatch",
         description: "Passwords do not match. Please try again.",
@@ -44,27 +46,19 @@ export default function RegisterPage() {
 
     try {
       // Create basic user account first
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+      const response = await api.post("/users", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        // Store user info for onboarding
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("userId", data.userId)
+      if (response.status == 201) {
+        localStorage.setItem("token", response.data.token)
+        localStorage.setItem("userId", response.data.userId)
         localStorage.setItem("userName", formData.name)
 
         toast({
-          title: "Welcome to FitTracker!",
+          title: "Welcome to FitFusion!",
           description: "Let's personalize your fitness journey.",
         })
 
@@ -90,7 +84,7 @@ export default function RegisterPage() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Activity className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold">FitTracker</span>
+            <span className="text-2xl font-bold">FitFusion</span>
           </div>
           <CardTitle className="text-2xl">Start Your Fitness Journey</CardTitle>
           <CardDescription>Create your account in seconds</CardDescription>

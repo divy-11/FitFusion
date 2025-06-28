@@ -38,7 +38,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className={cn("flex flex-col h-full", mobile ? "w-full" : "w-64")}>
       <div className="flex items-center space-x-2 p-6 border-b">
         <Activity className="h-8 w-8 text-blue-600" />
-        <span className="text-2xl font-bold">FitTracker</span>
+        <span className="text-2xl font-bold">FitFusion</span>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -86,7 +86,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
           <div className="flex items-center space-x-2">
             <Activity className="h-6 w-6 text-blue-600" />
-            <span className="text-xl font-bold">FitTracker</span>
+            <span className="text-xl font-bold">FitFusion</span>
           </div>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>

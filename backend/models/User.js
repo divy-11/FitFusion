@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+    },
     email: {
         type: String,
         required: true,
@@ -13,25 +17,23 @@ const UserSchema = new Schema({
     },
     profile: {
         age: {
-            type: Number,
-            required: true
+            type: Number
         },
         weight: {
-            type: Number,
-            required: true
+            type: Number
         },
         height: {
-            type: Number,
-            required: true
+            type: Number
         },
         fitnessGoals: {
-            type: [String],
-            default: []
+            type: String
         },
         targetWeight: {
-            type: Number,
-            required: true
+            type: Number
         },
+        activityLevel: {
+            type: String
+        }
     }
 }, {
     timestamps: true

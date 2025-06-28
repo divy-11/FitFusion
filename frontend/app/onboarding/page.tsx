@@ -19,7 +19,13 @@ interface OnboardingData {
   activityLevel: string
   primaryGoal: string
 }
-
+const goalMap: Record<string, string> = {
+  "Lose Weight": "Fat Loss / Weight Loss",
+  "Build Muscle": "Muscle Gain (Hypertrophy)",
+  "Improve Endurance": "Endurance Improvement",
+  "Get Stronger": "Strength Building",
+  "Stay Healthy": "General Health & Longevity",
+}
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [userName, setUserName] = useState("")
@@ -91,7 +97,7 @@ export default function OnboardingPage() {
     try {
       const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
-
+      const mappedGoal = goalMap[data.fitnessGoal]
       const response = await fetch(`/api/users/${userId}`, {
         method: "PUT",
         headers: {
@@ -102,16 +108,15 @@ export default function OnboardingPage() {
           age: Number.parseInt(data.age),
           weight: Number.parseFloat(data.weight),
           height: Number.parseFloat(data.height),
-          fitnessGoal: data.fitnessGoal,
+          fitnessGoals: mappedGoal,
           activityLevel: data.activityLevel,
-          primaryGoal: data.primaryGoal,
-          onboardingCompleted: true,
+          primaryGoal: data.primaryGoal
         }),
       })
 
       if (response.ok) {
         toast({
-          title: "Welcome to FitTracker! 🎉",
+          title: "Welcome to FitFusion! 🎉",
           description: "Your personalized fitness journey starts now!",
         })
         router.push("/dashboard")
@@ -133,7 +138,7 @@ export default function OnboardingPage() {
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return true // Welcome step
+        return true 
       case 1:
         return data.age && data.weight && data.height
       case 2:
@@ -243,11 +248,10 @@ export default function OnboardingPage() {
                 <button
                   key={goal.value}
                   onClick={() => setData((prev) => ({ ...prev, fitnessGoal: goal.value }))}
-                  className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                    data.fitnessGoal === goal.value
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`w-full p-4 rounded-lg border-2 transition-all text-left ${data.fitnessGoal === goal.value
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300"
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-2xl">{goal.emoji}</span>
@@ -309,11 +313,10 @@ export default function OnboardingPage() {
                 <button
                   key={level.value}
                   onClick={() => setData((prev) => ({ ...prev, activityLevel: level.value }))}
-                  className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                    data.activityLevel === level.value
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`w-full p-4 rounded-lg border-2 transition-all text-left ${data.activityLevel === level.value
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300"
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-2xl">{level.emoji}</span>

@@ -48,7 +48,7 @@ export default function LoginPage() {
 
         toast({
           title: "Welcome back!",
-          description: "Successfully logged in to FitTracker.",
+          description: "Successfully logged in to FitFusion.",
         })
       } else {
         throw new Error("Login failed")
@@ -70,7 +70,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Activity className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold">FitTracker</span>
+            <span className="text-2xl font-bold">FitFusion</span>
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to continue your fitness journey</CardDescription>

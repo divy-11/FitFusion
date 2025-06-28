@@ -17,16 +17,18 @@ const validGoals = [
 ];
 
 const registerSchema = z.object({
+    name: z.string(),
     email: z.string().email(),
-    password: z.string().min(6),
-    profile: z.object({
-        age: z.number().min(0),
-        weight: z.number(),
-        height: z.number(),
-        fitnessGoals: z.array(z.enum(validGoals)),
-        targetWeight: z.number(),
-    })
+    password: z.string().min(6)
 });
+
+// profile: z.object({
+//     age: z.number().min(0),
+//     weight: z.number(),
+//     height: z.number(),
+//     fitnessGoals: z.array(z.enum(validGoals)),
+//     targetWeight: z.number(),
+// })
 
 
 app.post('/', async (req, res) => {
@@ -34,23 +36,54 @@ app.post('/', async (req, res) => {
     if (!safeData.success) {
         return res.status(400).json({ errors: safeData.error.flatten().fieldErrors });
     }
-    const { email, password, profile } = safeData.data;
+    const { name, email, password } = safeData.data;
 
     try {
         const userCheck = await User.findOne({ email });
         if (userCheck) {
             return res.status(400).json({ msg: 'User already exists' });
         }
-
         const hashed = await bcrypt.hash(password, 10);
-        const user = await User.create({ email, password: hashed, profile });
-        res.status(201).json({ msg: 'User registered' });
+        const user = await User.create({ name, email, password: hashed });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        res.status(201).json({ msg: 'User registered', userId: user._id, token });
 
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
+
+app.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const {
+            age,
+            weight,
+            height,
+            fitnessGoals,
+            activityLevel,
+            primaryGoal
+        } = req.body
+
+        const user = await User.findById(id)
+        if (!user) return res.status(404).json({ msg: "User not found" })
+
+        user.profile.age = age
+        user.profile.weight = weight
+        user.profile.height = height
+        user.profile.fitnessGoals = fitnessGoals
+        user.profile.activityLevel = activityLevel
+        user.profile.primaryGoal = primaryGoal
+        await user.save()
+
+        const updatedUser = await User.findById(id).select('-password')
+        res.json(updatedUser)
+    } catch (err) {
+        console.error("Update error:", err)
+        res.status(500).json({ error: "Server error" })
+    }
+});
 
 app.get('/:id', async (req, res) => {
     try {

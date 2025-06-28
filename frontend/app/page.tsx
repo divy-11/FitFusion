@@ -14,7 +14,7 @@ export default function LandingPage() {
         <nav className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Activity className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">FitTracker</span>
+            <span className="text-2xl font-bold text-gray-900">FitFusion</span>
           </div>
           <div className="space-x-4">
             <Link href="/login">
@@ -62,11 +62,11 @@ export default function LandingPage() {
               Start Your Journey
             </Button>
           </Link>
-          <Link href="/demo">
+          {/* <Link href="/demo">
             <Button variant="outline" size="lg" className="px-8 py-3">
               View Demo
             </Button>
-          </Link>
+          </Link> */}
         </motion.div>
       </motion.section>
 
@@ -154,10 +154,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center space-x-2 mb-8">
             <Activity className="h-6 w-6" />
-            <span className="text-xl font-bold">FitTracker</span>
+            <span className="text-xl font-bold">FitFusion</span>
           </div>
           <div className="text-center text-gray-400">
-            <p>&copy; 2024 FitTracker. All rights reserved.</p>
+            <p>&copy; 2025 FitFusion. All rights reserved.</p>
           </div>
         </div>
       </footer>
