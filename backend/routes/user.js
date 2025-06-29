@@ -78,7 +78,7 @@ app.put('/:id', async (req, res) => {
         await user.save()
 
         const updatedUser = await User.findById(id).select('-password')
-        res.json(updatedUser)
+        res.status(200).json(updatedUser)
     } catch (err) {
         console.error("Update error:", err)
         res.status(500).json({ error: "Server error" })

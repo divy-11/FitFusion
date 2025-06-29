@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Activity, ArrowRight, ArrowLeft, Sparkles, Target, User } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/axios"
 
 interface OnboardingData {
   age: string
@@ -17,14 +18,13 @@ interface OnboardingData {
   height: string
   fitnessGoal: string
   activityLevel: string
-  primaryGoal: string
 }
 const goalMap: Record<string, string> = {
-  "Lose Weight": "Fat Loss / Weight Loss",
-  "Build Muscle": "Muscle Gain (Hypertrophy)",
-  "Improve Endurance": "Endurance Improvement",
-  "Get Stronger": "Strength Building",
-  "Stay Healthy": "General Health & Longevity",
+  "weight_loss": "Fat Loss / Weight Loss",
+  "muscle_gain": "Muscle Gain (Hypertrophy)",
+  "endurance": "Endurance Improvement",
+  "strength": "Strength Building",
+  "general_fitness": "General Health & Longevity",
 }
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -34,8 +34,7 @@ export default function OnboardingPage() {
     weight: "",
     height: "",
     fitnessGoal: "",
-    activityLevel: "",
-    primaryGoal: "",
+    activityLevel: ""
   })
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -98,23 +97,21 @@ export default function OnboardingPage() {
       const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
       const mappedGoal = goalMap[data.fitnessGoal]
-      const response = await fetch(`/api/users/${userId}`, {
-        method: "PUT",
+      const response = await api.put(`/users/${userId}`, {
+        age: Number.parseInt(data.age),
+        weight: Number.parseFloat(data.weight),
+        height: Number.parseFloat(data.height),
+        fitnessGoals: mappedGoal,
+        activityLevel: data.activityLevel
+      }, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          age: Number.parseInt(data.age),
-          weight: Number.parseFloat(data.weight),
-          height: Number.parseFloat(data.height),
-          fitnessGoals: mappedGoal,
-          activityLevel: data.activityLevel,
-          primaryGoal: data.primaryGoal
-        }),
       })
 
-      if (response.ok) {
+
+      if (response.status == 200) {
+        console.log(response.data);
         toast({
           title: "Welcome to FitFusion! 🎉",
           description: "Your personalized fitness journey starts now!",
@@ -138,7 +135,7 @@ export default function OnboardingPage() {
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return true 
+        return true
       case 1:
         return data.age && data.weight && data.height
       case 2:
