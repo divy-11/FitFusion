@@ -18,6 +18,7 @@ interface OnboardingData {
   height: string
   fitnessGoal: string
   activityLevel: string
+  onboardingCompleted: boolean
 }
 const goalMap: Record<string, string> = {
   "weight_loss": "Fat Loss / Weight Loss",
@@ -34,7 +35,8 @@ export default function OnboardingPage() {
     weight: "",
     height: "",
     fitnessGoal: "",
-    activityLevel: ""
+    activityLevel: "",
+    onboardingCompleted: false
   })
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -102,7 +104,8 @@ export default function OnboardingPage() {
         weight: Number.parseFloat(data.weight),
         height: Number.parseFloat(data.height),
         fitnessGoals: mappedGoal,
-        activityLevel: data.activityLevel
+        activityLevel: data.activityLevel,
+        onboardingCompleted: true
       }, {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -34,7 +34,8 @@ const registerSchema = z.object({
 app.post('/', async (req, res) => {
     const safeData = registerSchema.safeParse(req.body);
     if (!safeData.success) {
-        return res.status(400).json({ errors: safeData.error.flatten().fieldErrors });
+        const errMsg = safeData.error.flatten().fieldErrors
+        return res.status(400).json({ errors: errMsg.email || errMsg.password || errMsg.name });
     }
     const { name, email, password } = safeData.data;
 
@@ -63,9 +64,10 @@ app.put('/:id', async (req, res) => {
             height,
             fitnessGoals,
             activityLevel,
-            primaryGoal
+            primaryGoal,
+            onboardingCompleted
         } = req.body
-
+        // console.log(onboardingCompleted)
         const user = await User.findById(id)
         if (!user) return res.status(404).json({ msg: "User not found" })
 
@@ -75,6 +77,7 @@ app.put('/:id', async (req, res) => {
         user.profile.fitnessGoals = fitnessGoals
         user.profile.activityLevel = activityLevel
         user.profile.primaryGoal = primaryGoal
+        user.profile.onboardingCompleted = onboardingCompleted
         await user.save()
 
         const updatedUser = await User.findById(id).select('-password')
@@ -90,7 +93,7 @@ app.get('/:id', async (req, res) => {
         // const user = await User.findById(req.params.id);
         const user = await User.findById(req.params.id).select('-password');
         if (!user) return res.status(404).json({ msg: 'User not found' });
-        res.json(user);
+        res.status(200).json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -117,7 +120,7 @@ app.post('/login', async (req, res) => {
         // console.log(checkPass);
         if (!checkPass) return res.status(400).json({ msg: 'Incorrect password' });
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        res.json({ token: `Bearer ${token}` });
+        res.status(201).json({ token: `Bearer ${token}`, userId: user._id });
 
     } catch (err) {
         res.status(500).json({ error: err.message });

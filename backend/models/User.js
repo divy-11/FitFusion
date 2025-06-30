@@ -33,6 +33,10 @@ const UserSchema = new Schema({
         },
         activityLevel: {
             type: String
+        },
+        onboardingCompleted: {
+            type: Boolean,
+            default: false
         }
     }
 }, {

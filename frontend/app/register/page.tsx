@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Activity, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/axios"
+import axios from "axios"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -31,7 +32,6 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     if (formData.password !== formData.confirmPassword) {
       console.log("MISMATCH");
       toast({
@@ -67,13 +67,29 @@ export default function RegisterPage() {
       } else {
         throw new Error("Registration failed")
       }
-    } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      })
-    } finally {
+    } catch (err: unknown) { //ANOTHER LEARNING : catch err can have annotation unknown(Recommended) or any
+      if (axios.isAxiosError(err)) {
+        // console.log(err.response?.data?.errors);
+        toast({
+          title: "Registration failed",
+          description: err.response?.data?.msg || err.response?.data?.errors ,
+          variant: "destructive",
+        })
+      } else if (err instanceof Error) {
+        toast({
+          title: "Unexpected Error",
+          description: err.message || "Sorry, Server Down!!",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Registration failed",
+          description: "Please try again later.",
+          variant: "destructive",
+        })
+      }
+    }
+    finally {
       setIsLoading(false)
     }
   }

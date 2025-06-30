@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Activity, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/axios"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -25,16 +26,17 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const response = await api.post("/users/login", {
+        email, password
+      },
+        {
+          validateStatus: () => true, // try-catch was catching 404 as an error but i wanna treat it
+        }
+      )
+      console.log(response.status);
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status == 201) {
+        const data = response.data
         localStorage.setItem("token", data.token)
         localStorage.setItem("userId", data.userId)
 
@@ -50,7 +52,15 @@ export default function LoginPage() {
           title: "Welcome back!",
           description: "Successfully logged in to FitFusion.",
         })
+      }
+      else if (response.status == 404 || response.status == 400) {
+        toast({
+          title: response.data.msg,
+          description: "Please check your credentials",
+          variant: "destructive",
+        })
       } else {
+        console.log(response.data.error);
         throw new Error("Login failed")
       }
     } catch (error) {
