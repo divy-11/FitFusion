@@ -12,10 +12,9 @@ import { api } from "@/lib/axios"
 
 interface ActivityLog {
   id: string
-  type: string
+  activityType: string
   duration: number
-  calories: number
-  date: string
+  caloriesBurned: number
   timestamp: string
 }
 
@@ -48,6 +47,7 @@ export default function ActivitiesPage() {
 
       if (response.status == 201) {
         setActivities(response.data)
+        console.log(activities);
       }
     } catch (error) {
       console.error("Error fetching activities:", error)
@@ -60,11 +60,11 @@ export default function ActivitiesPage() {
     let filtered = activities
 
     if (searchTerm) {
-      filtered = filtered.filter((activity) => activity.type.toLowerCase().includes(searchTerm.toLowerCase()))
+      filtered = filtered.filter((activity) => activity.activityType.toLowerCase().includes(searchTerm.toLowerCase()))
     }
 
     if (filterType !== "all") {
-      filtered = filtered.filter((activity) => activity.type === filterType)
+      filtered = filtered.filter((activity) => activity.activityType === filterType)
     }
 
     setFilteredActivities(filtered)
@@ -149,18 +149,18 @@ export default function ActivitiesPage() {
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        {getActivityIcon(activity.type)}
+                        {getActivityIcon(activity.activityType)}
                       </div>
                       <div>
-                        <h3 className="font-medium capitalize">{activity.type}</h3>
+                        <h3 className="font-medium capitalize">{activity.activityType}</h3>
                         <p className="text-sm text-gray-600">
-                          {activity.duration} minutes • {activity.calories} calories
+                          {activity.duration} minutes • {activity.caloriesBurned} calories
                         </p>
                         <p className="text-xs text-gray-500">{new Date(activity.timestamp).toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-blue-600">{activity.calories} cal</div>
+                      <div className="text-lg font-semibold text-blue-600">{activity.caloriesBurned} cal</div>
                       <div className="text-sm text-gray-600">{activity.duration} min</div>
                     </div>
                   </div>

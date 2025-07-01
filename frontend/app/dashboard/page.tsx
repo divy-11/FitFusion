@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { Activity, Target, TrendingUp, Calendar, Plus } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { api } from "@/lib/axios"
 
 interface DashboardStats {
   totalActivities: number
@@ -17,10 +18,10 @@ interface DashboardStats {
 
 interface RecentActivity {
   id: string
-  type: string
+  activityType: string
   duration: number
-  calories: number
-  date: string
+  caloriesBurned: number
+  timestamp: string
 }
 
 export default function DashboardPage() {
@@ -39,26 +40,23 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
 
-      // Fetch user activities using the correct API endpoint
-      const activitiesResponse = await fetch(`/api/activities/${userId}`, {
+      const activitiesResponse = await api.get(`/activities`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
-
-      if (activitiesResponse.ok) {
-        const activities = await activitiesResponse.json()
+      if (activitiesResponse.status == 201) {
+        const activities = activitiesResponse.data
 
         // Calculate stats from activities
         const totalActivities = activities.length
-        const totalCalories = activities.reduce((sum: number, activity: any) => sum + (activity.calories || 0), 0)
+        const totalCalories = activities.reduce((sum: number, activity: any) => sum + (activity.caloriesBurned || 0), 0)
 
         // Calculate weekly goal progress (assuming goal of 5 activities per week)
         const thisWeek = activities.filter((activity: any) => {
-          const activityDate = new Date(activity.timestamp || activity.date)
+          const activityDate = new Date(activity.timestamp)
           const weekAgo = new Date()
           weekAgo.setDate(weekAgo.getDate() - 7)
           return activityDate >= weekAgo
@@ -78,7 +76,7 @@ export default function DashboardPage() {
         // Set recent activities (last 5)
         const sortedActivities = activities
           .sort(
-            (a: any, b: any) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime(),
+            (a: any, b: any) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp).getTime(),
           )
           .slice(0, 5)
 
@@ -96,8 +94,8 @@ export default function DashboardPage() {
     if (activities.length === 0) return 0
 
     const sortedDates = activities
-      .map((activity) => new Date(activity.timestamp || activity.date).toDateString())
-      .filter((date, index, arr) => arr.indexOf(date) === index)
+      .map((activity) => new Date(activity.timestamp).toDateString())
+      .filter((timestamp, index, arr) => arr.indexOf(timestamp) === index)
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 
     let streak = 0
@@ -200,20 +198,20 @@ export default function DashboardPage() {
           <CardContent>
             {recentActivities.length > 0 ? (
               <div className="space-y-4">
-                {recentActivities.map((activity) => (
+                {recentActivities.slice(0,2).map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <Activity className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="font-medium capitalize">{activity.type}</p>
+                        <p className="font-medium capitalize">{activity.activityType}</p>
                         <p className="text-sm text-gray-600">{activity.duration} minutes</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">{activity.calories} cal</p>
-                      <p className="text-sm text-gray-600">{new Date(activity.date).toLocaleDateString()}</p>
+                      <p className="font-medium">{activity.caloriesBurned} cal</p>
+                      <p className="text-sm text-gray-600">{new Date(activity.timestamp).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))}

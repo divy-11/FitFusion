@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User, Edit, Save, X, Activity, Target, TrendingUp, Calendar } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/axios"
 
 interface UserProfile {
   id: string
@@ -31,8 +32,21 @@ interface UserStats {
 }
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [stats, setStats] = useState<UserStats | null>(null)
+  const [profile, setProfile] = useState<UserProfile>({
+    id: "dummy-id",
+    email: "dummy@example.com",
+    age: 0,
+    weight: 0,
+    height: 0,
+    fitnessGoal: "general_fitness",
+    createdAt: new Date().toISOString(),
+  })
+  const [stats, setStats] = useState<UserStats>({
+    totalActivities: 0,
+    totalCalories: 0,
+    averageWorkoutDuration: 0,
+    memberSince: new Date().toISOString(),
+  })
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -51,23 +65,32 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
 
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await api.get(`/users`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        setProfile(data)
+      if (response.status == 200) {
+        const data = response.data
+        setProfile({
+          id: data._id,
+          email: data.email,
+          age: data.profile.age,
+          weight: data.profile.weight,
+          height: data.profile.height,
+          fitnessGoal: data.profile.fitnessGoals,
+          createdAt: data.createdAt,
+        })
+        console.log(data);
+
         setEditForm({
-          age: data.age.toString(),
-          weight: data.weight.toString(),
-          height: data.height.toString(),
-          fitnessGoal: data.fitnessGoal,
+          age: data.profile.age.toString(),
+          weight: data.profile.weight.toString(),
+          height: data.profile.height.toString(),
+          fitnessGoal: data.profile.fitnessGoals,
         })
       }
     } catch (error) {
@@ -82,19 +105,18 @@ export default function ProfilePage() {
 
   const fetchStats = async () => {
     try {
-      const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
 
-      const response = await fetch(`/api/activities/${userId}`, {
+      const resp = await api.get(`/activities`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
 
-      if (response.ok) {
-        const activities = await response.json()
+      if (resp.status == 201) {
+        const activities = resp.data
         const totalActivities = activities.length
-        const totalCalories = activities.reduce((sum: number, activity: any) => sum + activity.calories, 0)
+        const totalCalories = activities.reduce((sum: number, activity: any) => sum + activity.caloriesBurned, 0)
         const averageWorkoutDuration =
           activities.length > 0
             ? activities.reduce((sum: number, activity: any) => sum + activity.duration, 0) / activities.length

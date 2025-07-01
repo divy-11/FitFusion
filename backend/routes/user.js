@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const z = require('zod');
+const authUser = require('../middleware/middleware');
 
 const validGoals = [
     'Muscle Gain (Hypertrophy)',
@@ -88,10 +89,13 @@ app.put('/:id', async (req, res) => {
     }
 });
 
-app.get('/:id', async (req, res) => {
+app.get('/', authUser, async (req, res) => {
+    if (!req.user.id) {
+        return res.status(401).json({ message: "Please login first." });
+    }
     try {
         // const user = await User.findById(req.params.id);
-        const user = await User.findById(req.params.id).select('-password');
+        const user = await User.findById(req.user.id).select('-password');
         if (!user) return res.status(404).json({ msg: 'User not found' });
         res.status(200).json(user);
     } catch (err) {
