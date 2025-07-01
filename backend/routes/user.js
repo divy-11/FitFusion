@@ -131,4 +131,29 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.put('/', authUser, async (req, res) => {
+    try {
+        if (!req.user.id) {
+            return res.status(401).json({ message: "Please login first." });
+        }
+        const allowedFields = ["age", "height", "weight", "fitnessGoals","onboardingCompleted"];
+        const updates = {};
+        for (const key of allowedFields) {
+            if (req.body[key] !== undefined) {
+                updates[key] = req.body[key];
+            }
+        }
+        // console.log(req.user.id);
+
+        // console.log(updates);
+
+        const updatedUser = await User.findByIdAndUpdate(req.user.id, { profile: updates }, { new: true })
+        // console.log(updatedUser);
+
+        res.status(200).json({ msg: "User Updated!!" })
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = app;

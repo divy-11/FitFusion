@@ -16,6 +16,7 @@ import { api } from "@/lib/axios"
 
 interface UserProfile {
   id: string
+  name: string
   email: string
   age: number
   weight: number
@@ -34,6 +35,7 @@ interface UserStats {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile>({
     id: "dummy-id",
+    name: "dummy",
     email: "dummy@example.com",
     age: 0,
     weight: 0,
@@ -77,6 +79,7 @@ export default function ProfilePage() {
         const data = response.data
         setProfile({
           id: data._id,
+          name: data.name,
           email: data.email,
           age: data.profile.age,
           weight: data.profile.weight,
@@ -84,7 +87,7 @@ export default function ProfilePage() {
           fitnessGoal: data.profile.fitnessGoals,
           createdAt: data.createdAt,
         })
-        console.log(data);
+        // console.log(data);
 
         setEditForm({
           age: data.profile.age.toString(),
@@ -139,24 +142,22 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
 
-      const response = await fetch(`/api/users/${userId}`, {
-        method: "PUT",
+      const response = await api.put(`/users`, {
+        age: Number.parseInt(editForm.age),
+        weight: Number.parseFloat(editForm.weight),
+        height: Number.parseFloat(editForm.height),
+        fitnessGoals: editForm.fitnessGoal,
+        onboardingCompleted: true
+      }, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
-        body: JSON.stringify({
-          age: Number.parseInt(editForm.age),
-          weight: Number.parseFloat(editForm.weight),
-          height: Number.parseFloat(editForm.height),
-          fitnessGoal: editForm.fitnessGoal,
-        }),
-      })
+      },
+      )
 
-      if (response.ok) {
+      if (response.status == 200) {
         await fetchProfile()
         setIsEditing(false)
         toast({
@@ -280,12 +281,16 @@ export default function ProfilePage() {
                 {/* Avatar and Email */}
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src="/placeholder.svg?height=80&width=80" />
-                    <AvatarFallback className="text-lg">{profile.email.charAt(0).toUpperCase()}</AvatarFallback>
+                    {/* <AvatarImage src="/placeholder-user.svg?height=80&width=80" /> */}
+                    <AvatarFallback className="text-3xl bg-blue-200">{profile.email.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="text-lg font-semibold">{profile.email}</h3>
-                    <p className="text-gray-600">Member since {new Date(profile.createdAt).toLocaleDateString()}</p>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {profile.name}
+                    </h3>
+                    <p className="text-gray-700">
+                      {profile.email}
+                    </p>
                   </div>
                 </div>
 
@@ -371,6 +376,9 @@ export default function ProfilePage() {
                     <Badge className={bmiInfo.color}>{bmiInfo.category}</Badge>
                   </div>
                 </div>
+                {/* <div>
+                  <p className="text-sm text-gray-600">Member since {new Date(profile.createdAt).toLocaleDateString()}</p>
+                </div> */}
               </CardContent>
             </Card>
           </div>
@@ -447,6 +455,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </DashboardLayout >
   )
 }

@@ -20,13 +20,13 @@ interface OnboardingData {
   activityLevel: string
   onboardingCompleted: boolean
 }
-const goalMap: Record<string, string> = {
-  "weight_loss": "Fat Loss / Weight Loss",
-  "muscle_gain": "Muscle Gain (Hypertrophy)",
-  "endurance": "Endurance Improvement",
-  "strength": "Strength Building",
-  "general_fitness": "General Health & Longevity",
-}
+// const goalMap: Record<string, string> = {
+//   "weight_loss": "Fat Loss / Weight Loss",
+//   "muscle_gain": "Muscle Gain (Hypertrophy)",
+//   "endurance": "Endurance Improvement",
+//   "strength": "Strength Building",
+//   "general_fitness": "General Health & Longevity",
+// }
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [userName, setUserName] = useState("")
@@ -98,12 +98,12 @@ export default function OnboardingPage() {
     try {
       const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
-      const mappedGoal = goalMap[data.fitnessGoal]
+      // const mappedGoal = goalMap[data.fitnessGoal]
       const response = await api.put(`/users/${userId}`, {
         age: Number.parseInt(data.age),
         weight: Number.parseFloat(data.weight),
         height: Number.parseFloat(data.height),
-        fitnessGoals: mappedGoal,
+        fitnessGoals: data.fitnessGoal,
         activityLevel: data.activityLevel,
         onboardingCompleted: true
       }, {
