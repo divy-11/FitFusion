@@ -14,6 +14,7 @@ import { Activity, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/axios"
 
 export default function NewActivityPage() {
   const [formData, setFormData] = useState({
@@ -85,25 +86,23 @@ export default function NewActivityPage() {
 
     try {
       const token = localStorage.getItem("token")
-      const userId = localStorage.getItem("userId")
+      // const userId = localStorage.getItem("userId")
 
-      const response = await fetch("/api/activities", {
-        method: "POST",
+      const response = await api.post("/activities", {
+        // userId: userId,
+        activityType: formData.type,
+        duration: Number.parseInt(formData.duration),
+        caloriesBurned: Number.parseInt(formData.calories),
+        timestamp: new Date().toISOString(),
+        notes: formData.notes,
+      }, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: userId,
-          activityType: formData.type,
-          duration: Number.parseInt(formData.duration),
-          caloriesBurned: Number.parseInt(formData.calories),
-          timestamp: new Date().toISOString(),
-          notes: formData.notes,
-        }),
+          Authorization: `${token}`,
+        }
       })
-
-      if (response.ok) {
+      console.log(response.status);
+      
+      if (response.status == 201) {
         toast({
           title: "Activity logged successfully",
           description: "Your workout has been added to your activity history.",
@@ -179,7 +178,7 @@ export default function NewActivityPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="type">Activity Type</Label>
-                  <Button
+                  {/* <Button
                     type="button"
                     variant="outline"
                     size="sm"
@@ -187,7 +186,7 @@ export default function NewActivityPage() {
                     disabled={useAIPrediction || !formData.duration || !formData.calories}
                   >
                     {useAIPrediction ? "Predicting..." : "AI Predict"}
-                  </Button>
+                  </Button> */}
                 </div>
                 <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
                   <SelectTrigger>

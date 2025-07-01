@@ -108,7 +108,7 @@ export default function OnboardingPage() {
         onboardingCompleted: true
       }, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
 

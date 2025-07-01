@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Activity, Plus, Search, Filter } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { api } from "@/lib/axios"
 
 interface ActivityLog {
   id: string
@@ -35,18 +36,18 @@ export default function ActivitiesPage() {
 
   const fetchActivities = async () => {
     try {
-      const userId = localStorage.getItem("userId")
+      // const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
 
-      const response = await fetch(`/api/activities/${userId}`, {
+      const response = await api.get(`/activities`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
+      console.log(response);
 
-      if (response.ok) {
-        const data = await response.json()
-        setActivities(data)
+      if (response.status == 201) {
+        setActivities(response.data)
       }
     } catch (error) {
       console.error("Error fetching activities:", error)

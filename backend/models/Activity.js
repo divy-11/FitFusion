@@ -13,6 +13,7 @@ const ActivitySchema = new Schema({
     },
     duration: { type: Number }, //MINUTES
     caloriesBurned: { type: Number },
+    notes: { type: String },
     timestamp: {
         type: Date,
         default: Date.now
