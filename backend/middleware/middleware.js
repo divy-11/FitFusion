@@ -6,11 +6,11 @@ const JWT_TOKEN = process.env.JWT_SECRET;
 const authUser = (req, res, next) => {
     const authorization = req.headers.authorization;
     // console.log();
-    
+
+    // console.log(authorization);
     if (!authorization || !authorization.startsWith("Bearer ")) {
         return res.status(401).json({ Unauthorized: "No token provided" });
     } else {
-        // console.log(authorization);
         const token = authorization.split(' ')[1];
         // console.log(token, " ", JWT_TOKEN)
         try {

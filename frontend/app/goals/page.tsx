@@ -14,16 +14,17 @@ import { Badge } from "@/components/ui/badge"
 import { Target, Plus, Edit, Trash2, Calendar, TrendingUp } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/axios"
 
 interface Goal {
-  id: string
+  _id: string
   title: string
   description: string
-  type: string
+  fitnessGoal: string
   targetValue: number
   currentValue: number
   unit: string
-  deadline: string
+  targetDate: string
   status: "active" | "completed" | "paused"
   createdAt: string
 }
@@ -36,10 +37,10 @@ export default function GoalsPage() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    type: "",
+    fitnessGoal: "",
     targetValue: "",
     unit: "",
-    deadline: "",
+    targetDate: "",
   })
   const { toast } = useToast()
 
@@ -49,18 +50,18 @@ export default function GoalsPage() {
 
   const fetchGoals = async () => {
     try {
-      const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
 
-      const response = await fetch(`/api/goals/${userId}`, {
+      const response = await api.get(`/goals`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        setGoals(data)
+      if (response.status == 200) {
+        const data = response.data
+        console.log(data);
+        setGoals(data.goals)
       }
     } catch (error) {
       console.error("Error fetching goals:", error)
@@ -74,33 +75,29 @@ export default function GoalsPage() {
 
     try {
       const token = localStorage.getItem("token")
-      const userId = localStorage.getItem("userId")
 
       const goalData = {
         title: formData.title,
         description: formData.description,
-        type: formData.type,
+        fitnessGoal: formData.fitnessGoal,
         targetValue: Number.parseFloat(formData.targetValue),
         currentValue: 0,
         unit: formData.unit,
-        deadline: formData.deadline,
+        targetDate: formData.targetDate,
         status: "active" as const,
-        userId: userId,
       }
 
-      const url = editingGoal ? `/api/goals/${editingGoal.id}` : "/api/goals"
-      const method = editingGoal ? "PUT" : "POST"
+      const url = editingGoal ? `/goals/${editingGoal._id}` : "/goals"
+      const method = editingGoal ? "put" : "post";
 
-      const response = await fetch(url, {
-        method,
+      const response = await api[method](url,
+        goalData, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
-        body: JSON.stringify(goalData),
-      })
-
-      if (response.ok) {
+      }
+      )
+      if (response.status == 200 || response.status == 201) {
         await fetchGoals()
         resetForm()
         toast({
@@ -121,10 +118,10 @@ export default function GoalsPage() {
     setFormData({
       title: "",
       description: "",
-      type: "",
+      fitnessGoal: "",
       targetValue: "",
       unit: "",
-      deadline: "",
+      targetDate: "",
     })
     setShowCreateForm(false)
     setEditingGoal(null)
@@ -132,13 +129,14 @@ export default function GoalsPage() {
 
   const handleEdit = (goal: Goal) => {
     setEditingGoal(goal)
+
     setFormData({
       title: goal.title,
       description: goal.description,
-      type: goal.type,
+      fitnessGoal: goal.fitnessGoal,
       targetValue: goal.targetValue.toString(),
       unit: goal.unit,
-      deadline: goal.deadline.split("T")[0], // Format for date input
+      targetDate: goal.targetDate.split("T")[0], // Format for date input
     })
     setShowCreateForm(true)
   }
@@ -148,14 +146,13 @@ export default function GoalsPage() {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`/api/goals/${goalId}`, {
-        method: "DELETE",
+      const response = await api.delete(`/goals/${goalId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       })
 
-      if (response.ok) {
+      if (response.status == 200) {
         await fetchGoals()
         toast({
           title: "Goal deleted",
@@ -188,9 +185,9 @@ export default function GoalsPage() {
     }
   }
 
-  const getDaysRemaining = (deadline: string) => {
+  const getDaysRemaining = (targetDate: string) => {
     const today = new Date()
-    const deadlineDate = new Date(deadline)
+    const deadlineDate = new Date(targetDate)
     const diffTime = deadlineDate.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
@@ -244,10 +241,10 @@ export default function GoalsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="type">Goal Type</Label>
+                    <Label htmlFor="fitnessGoal">Goal Type</Label>
                     <Select
-                      value={formData.type}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value }))}
+                      value={formData.fitnessGoal}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, fitnessGoal: value }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select goal type" />
@@ -299,12 +296,12 @@ export default function GoalsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="deadline">Deadline</Label>
+                    <Label htmlFor="targetDate">Deadline</Label>
                     <Input
-                      id="deadline"
+                      id="targetDate"
                       type="date"
-                      value={formData.deadline}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, deadline: e.target.value }))}
+                      value={formData.targetDate}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, targetDate: e.target.value }))}
                       required
                     />
                   </div>
@@ -336,10 +333,10 @@ export default function GoalsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {goals.map((goal) => {
             const progress = getProgressPercentage(goal.currentValue, goal.targetValue)
-            const daysRemaining = getDaysRemaining(goal.deadline)
+            const daysRemaining = getDaysRemaining(goal.targetDate)
 
             return (
-              <Card key={goal.id} className="relative">
+              <Card key={goal._id} className="relative">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-2">
@@ -350,7 +347,7 @@ export default function GoalsPage() {
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(goal)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(goal.id)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(goal._id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -386,7 +383,7 @@ export default function GoalsPage() {
                     </div>
                     <div className="flex items-center space-x-1">
                       <TrendingUp className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-600">{goal.type.replace("_", " ")}</span>
+                      <span className="text-gray-600">{goal.fitnessGoal.replace("_", " ")}</span>
                     </div>
                   </div>
                 </CardContent>

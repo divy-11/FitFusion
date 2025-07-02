@@ -7,8 +7,17 @@ const GoalSchema = new Schema({
         ref: 'User',
         required: true
     },
+    title: { type: String },
+    description: { type: String },
     fitnessGoal: { type: String },
-    targetWeight: { type: Number },
+    targetValue: { type: Number },
+    currentValue: { type: Number },
+    unit: { type: String },
+    status: {
+        type: String,
+        enum: ['active', 'completed', 'paused'],
+        default: 'active',
+    },
     targetDate: { type: Date }
 }, { timestamps: true });
 
