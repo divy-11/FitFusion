@@ -15,7 +15,7 @@ const navigation = [
   { name: "Activities", href: "/activities", icon: Activity },
   { name: "Goals", href: "/goals", icon: Target },
   { name: "Insights", href: "/insights", icon: Lightbulb },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  // { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Profile", href: "/profile", icon: User },
 ]
 
@@ -31,6 +31,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleLogout = () => {
     localStorage.removeItem("token")
     localStorage.removeItem("userId")
+    localStorage.removeItem("userName")
     router.push("/login")
   }
 

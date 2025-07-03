@@ -13,6 +13,7 @@ import { User, Edit, Save, X, Activity, Target, TrendingUp, Calendar } from "luc
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/axios"
+import { useRouter } from "next/navigation"
 
 interface UserProfile {
   id: string
@@ -33,6 +34,7 @@ interface UserStats {
 }
 
 export default function ProfilePage() {
+  const router=useRouter()
   const [profile, setProfile] = useState<UserProfile>({
     id: "dummy-id",
     name: "dummy",
@@ -73,6 +75,7 @@ export default function ProfilePage() {
         headers: {
           Authorization: `${token}`,
         },
+        validateStatus: () => true
       })
 
       if (response.status == 200) {
@@ -95,6 +98,14 @@ export default function ProfilePage() {
           height: data.profile.height.toString(),
           fitnessGoal: data.profile.fitnessGoals,
         })
+      }
+      else if (response.status == 401) {
+        toast({
+          title: "Unauthorized Access",
+          description: "Please login first.",
+          variant: "destructive",
+        });
+        router.push("/login")
       }
     } catch (error) {
       console.error("Error fetching profile:", error)

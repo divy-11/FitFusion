@@ -9,6 +9,8 @@ import { Activity, Plus, Search, Filter } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { api } from "@/lib/axios"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 interface ActivityLog {
   id: string
@@ -19,6 +21,8 @@ interface ActivityLog {
 }
 
 export default function ActivitiesPage() {
+  const { toast } = useToast()
+  const router = useRouter()
   const [activities, setActivities] = useState<ActivityLog[]>([])
   const [filteredActivities, setFilteredActivities] = useState<ActivityLog[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -42,12 +46,21 @@ export default function ActivitiesPage() {
         headers: {
           Authorization: `${token}`,
         },
+        validateStatus: () => true
       })
-      console.log(response);
+      // console.log(response);
 
       if (response.status == 201) {
         setActivities(response.data)
-        console.log(activities);
+        // console.log(activities);
+      }
+      else if (response.status == 401) {
+        toast({
+          title: "Unauthorized Access",
+          description: "Please login first.",
+          variant: "destructive",
+        });
+        router.push("/login")
       }
     } catch (error) {
       console.error("Error fetching activities:", error)

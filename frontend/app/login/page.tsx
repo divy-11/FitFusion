@@ -38,7 +38,7 @@ export default function LoginPage() {
       if (response.status == 201) {
         const data = response.data
         localStorage.setItem("token", data.token)
-        localStorage.setItem("userId", data.userId)
+        // localStorage.setItem("userId", data.userId)
 
         // Check if user has completed onboarding
         if (data.onboardingCompleted === false) {

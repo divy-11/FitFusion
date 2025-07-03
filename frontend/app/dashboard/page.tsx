@@ -8,6 +8,8 @@ import { Activity, Target, TrendingUp, Calendar, Plus } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { api } from "@/lib/axios"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
 interface DashboardStats {
   totalActivities: number
@@ -23,8 +25,9 @@ interface RecentActivity {
   caloriesBurned: number
   timestamp: string
 }
-
 export default function DashboardPage() {
+  const router = useRouter()
+  const { toast } = useToast()
   const [stats, setStats] = useState<DashboardStats>({
     totalActivities: 0,
     totalCalories: 0,
@@ -46,6 +49,7 @@ export default function DashboardPage() {
         headers: {
           Authorization: `${token}`,
         },
+        validateStatus: () => true,
       })
       if (activitiesResponse.status == 201) {
         const activities = activitiesResponse.data
@@ -81,6 +85,14 @@ export default function DashboardPage() {
           .slice(0, 5)
 
         setRecentActivities(sortedActivities)
+      }
+      else if (activitiesResponse.status == 401) {
+        toast({
+          title: "Unauthorized Access",
+          description: "Please login first.",
+          variant: "destructive",
+        });
+        router.push("/login")
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
@@ -198,7 +210,7 @@ export default function DashboardPage() {
           <CardContent>
             {recentActivities.length > 0 ? (
               <div className="space-y-4">
-                {recentActivities.slice(0,2).map((activity) => (
+                {recentActivities.slice(0, 2).map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">

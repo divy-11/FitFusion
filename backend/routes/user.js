@@ -56,9 +56,12 @@ app.post('/', async (req, res) => {
 });
 
 
-app.put('/:id', async (req, res) => {
+app.put('/', authUser, async (req, res) => {
     try {
-        const { id } = req.params
+        const id = req.user.id
+        if (!req.user.id) {
+            return res.status(401).json({ message: "Please login first." });
+        }
         const {
             age,
             weight,
@@ -136,7 +139,7 @@ app.put('/', authUser, async (req, res) => {
         if (!req.user.id) {
             return res.status(401).json({ message: "Please login first." });
         }
-        const allowedFields = ["age", "height", "weight", "fitnessGoals","onboardingCompleted"];
+        const allowedFields = ["age", "height", "weight", "fitnessGoals", "onboardingCompleted"];
         const updates = {};
         for (const key of allowedFields) {
             if (req.body[key] !== undefined) {

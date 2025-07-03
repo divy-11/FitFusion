@@ -96,10 +96,10 @@ export default function OnboardingPage() {
   const handleComplete = async () => {
     setIsLoading(true)
     try {
-      const userId = localStorage.getItem("userId")
+      // const userId = localStorage.getItem("userId")
       const token = localStorage.getItem("token")
       // const mappedGoal = goalMap[data.fitnessGoal]
-      const response = await api.put(`/users/${userId}`, {
+      const response = await api.put(`/users`, {
         age: Number.parseInt(data.age),
         weight: Number.parseFloat(data.weight),
         height: Number.parseFloat(data.height),

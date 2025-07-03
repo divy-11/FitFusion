@@ -15,6 +15,7 @@ import { Target, Plus, Edit, Trash2, Calendar, TrendingUp } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/axios"
+import { useRouter } from "next/navigation"
 
 interface Goal {
   _id: string
@@ -30,6 +31,7 @@ interface Goal {
 }
 
 export default function GoalsPage() {
+  const router = useRouter()
   const [goals, setGoals] = useState<Goal[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -56,12 +58,21 @@ export default function GoalsPage() {
         headers: {
           Authorization: `${token}`,
         },
+        validateStatus: () => true
       })
 
       if (response.status == 200) {
         const data = response.data
         console.log(data);
         setGoals(data.goals)
+      }
+      else if (response.status == 401) {
+        toast({
+          title: "Unauthorized Access",
+          description: "Please login first.",
+          variant: "destructive",
+        });
+        router.push("/login")
       }
     } catch (error) {
       console.error("Error fetching goals:", error)

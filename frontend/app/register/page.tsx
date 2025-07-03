@@ -54,7 +54,7 @@ export default function RegisterPage() {
 
       if (response.status == 201) {
         localStorage.setItem("token", response.data.token)
-        localStorage.setItem("userId", response.data.userId)
+        // localStorage.setItem("userId", response.data.userId)
         localStorage.setItem("userName", formData.name)
 
         toast({

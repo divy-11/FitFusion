@@ -98,16 +98,25 @@ export default function NewActivityPage() {
       }, {
         headers: {
           Authorization: `${token}`,
-        }
+        },
+        validateStatus: () => true
       })
       console.log(response.status);
-      
+
       if (response.status == 201) {
         toast({
           title: "Activity logged successfully",
           description: "Your workout has been added to your activity history.",
         })
         router.push("/activities")
+      }
+      else if (response.status == 401) {
+        toast({
+          title: "Unauthorized Access",
+          description: "Please login first.",
+          variant: "destructive",
+        });
+        router.push("/login")
       } else {
         throw new Error("Failed to log activity")
       }
