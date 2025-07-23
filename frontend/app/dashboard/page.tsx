@@ -94,6 +94,14 @@ export default function DashboardPage() {
         });
         router.push("/login")
       }
+      else if (activitiesResponse.status == 403) {
+        toast({
+          title: "Session Expired.",
+          description: "Please login again.",
+          variant: "destructive",
+        });
+        router.push("/login")
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
     } finally {

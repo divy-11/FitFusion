@@ -107,6 +107,14 @@ export default function ProfilePage() {
         });
         router.push("/login")
       }
+      else if (response.status == 403) {
+        toast({
+          title: "Session Expired.",
+          description: "Please login again.",
+          variant: "destructive",
+        });
+        router.push("/login")
+      }
     } catch (error) {
       console.error("Error fetching profile:", error)
       toast({
@@ -395,7 +403,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Statistics */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -403,7 +411,7 @@ export default function ProfilePage() {
                   <span>Your Stats</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {stats && (
                   <>
                     <div className="flex items-center justify-between">
@@ -451,9 +459,9 @@ export default function ProfilePage() {
                 <Button variant="outline" className="w-full justify-start">
                   Change Password
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                {/* <Button variant="outline" className="w-full justify-start">
                   Privacy Settings
-                </Button>
+                </Button> */}
                 <Button variant="outline" className="w-full justify-start">
                   Notification Preferences
                 </Button>

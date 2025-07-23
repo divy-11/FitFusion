@@ -74,6 +74,14 @@ export default function GoalsPage() {
         });
         router.push("/login")
       }
+      else if (response.status == 403) {
+        toast({
+          title: "Session Expired.",
+          description: "Please login again.",
+          variant: "destructive",
+        });
+        router.push("/login")
+      }
     } catch (error) {
       console.error("Error fetching goals:", error)
     } finally {

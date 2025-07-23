@@ -44,8 +44,16 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const name = localStorage.getItem("userName")
+
     if (name) {
-      setUserName(name.split(" ")[0]) // Use first name only
+      if (name === 'undefined') {
+        router.push("/dashboard")
+        return
+      }
+      setUserName(name.split(" ")[0])
+    }
+    else {
+      router.push("/dashboard")
     }
   }, [])
 
