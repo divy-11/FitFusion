@@ -36,7 +36,7 @@ app.post('/', authUser, async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-app.put('/:id', authUser, async (req, res) => {
+app.put('/solo/:id', authUser, async (req, res) => {
     // console.log(req.user);
     if (!req.user.id) {
         return res.status(401).json({ message: "Please login first." });
@@ -55,6 +55,45 @@ app.put('/:id', authUser, async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+app.put('/all', authUser, async (req, res) => {
+    if (!req.user.id) {
+        return res.status(401).json({ message: "Please login first." });
+    }
+    const { activityType, duration, customField, caloriesBurned } = req.body;
+    try {
+        const goals = await Goal.find({ userId: req.user.id })
+        for (let goal of goals) {
+            console.log(goal);
+
+            switch (goal.fitnessGoal) {
+                case 'burn_calories':
+                    goal.currentValue += caloriesBurned
+                    break;
+                case 'distance':
+                    goal.currentValue += customField
+                    break;
+                case 'duration':
+                    goal.currentValue += duration
+                    break;
+                case 'frequency':
+                    if (activityType == 'workout') {
+                        goal.currentValue++
+                    }
+                    break;
+                case 'strength':
+                    goal.currentValue = Math.max(customField, goal.currentValue)
+                    break;
+                default:
+                    break;
+            }
+            await goal.save();
+        }
+        res.status(200).json({ msg: 'Goals Updated.' });
+    } catch (error) {
+        res.status(500).json({ error: err.message });
+    }
+})
 
 app.delete('/:id', authUser, async (req, res) => {
     if (!req.user.id) {

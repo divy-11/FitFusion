@@ -21,15 +21,32 @@ export default function NewActivityPage() {
     type: "",
     duration: "",
     calories: "",
+    customField: "0",
     notes: "",
   })
   const [isLoading, setIsLoading] = useState(false)
   const [useAIPrediction, setUseAIPrediction] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const [distanceCol, setDistanceCol] = useState(false)
+  const [weightCol, setWeightCol] = useState(false)
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    if (field == 'type') {
+      if (value == 'weightlifting') {
+        setWeightCol(true)
+        setDistanceCol(false)
+      }
+      else if (value == 'running' || value == 'hiking' || value == 'walking' || value == 'cycling') {
+        setDistanceCol(true)
+        setWeightCol(false)
+      }
+      else {
+        setWeightCol(false)
+        setDistanceCol(false)
+      }
+    }
   }
 
   const predictWorkoutType = async () => {
@@ -79,12 +96,31 @@ export default function NewActivityPage() {
       setUseAIPrediction(false)
     }
   }
+  const updateGoals = async () => {
+    const token = localStorage.getItem("token")
 
+    const response = await api.put(`/goals/all`, {
+      activityType: formData.type,
+      duration: Number.parseInt(formData.duration),
+      customField: Number.parseInt(formData.customField),
+      caloriesBurned: Number.parseInt(formData.calories),
+    }, {
+      headers: {
+        Authorization: `${token}`,
+      },
+      validateStatus: () => true
+    })
+    if (response.status == 200) {
+      return true
+    }
+    return false
+  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      if (!updateGoals()) return;
       const token = localStorage.getItem("token")
       // const userId = localStorage.getItem("userId")
 
@@ -92,6 +128,7 @@ export default function NewActivityPage() {
         // userId: userId,
         activityType: formData.type,
         duration: Number.parseInt(formData.duration),
+        customField: Number.parseInt(formData.customField),
         caloriesBurned: Number.parseInt(formData.calories),
         timestamp: new Date().toISOString(),
         notes: formData.notes,
@@ -167,31 +204,6 @@ export default function NewActivityPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="duration">Duration (minutes)</Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    placeholder="e.g., 30"
-                    value={formData.duration}
-                    onChange={(e) => handleInputChange("duration", e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="calories">Calories Burned</Label>
-                  <Input
-                    id="calories"
-                    type="number"
-                    placeholder="e.g., 250"
-                    value={formData.calories}
-                    onChange={(e) => handleInputChange("calories", e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="type">Activity Type</Label>
@@ -211,6 +223,7 @@ export default function NewActivityPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="running">Running</SelectItem>
+                    <SelectItem value="workout">Workout (Gym)</SelectItem>
                     <SelectItem value="cycling">Cycling</SelectItem>
                     <SelectItem value="weightlifting">Weightlifting</SelectItem>
                     <SelectItem value="swimming">Swimming</SelectItem>
@@ -222,6 +235,58 @@ export default function NewActivityPage() {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className={`grid grid-cols-1 gap-6 ${distanceCol || weightCol ? "md:grid-cols-3" : "md:grid-cols-2"
+                }`}>
+                <div className="space-y-2">
+                  <Label htmlFor="duration">Duration (minutes)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    placeholder="e.g., 30"
+                    value={formData.duration}
+                    onChange={(e) => handleInputChange("duration", e.target.value)}
+                    required
+                  />
+                </div>
+                {distanceCol && (
+                  <div className="space-y-2">
+                    <Label htmlFor="distance">Distance Covered (km)</Label>
+                    <Input
+                      id="distance"
+                      type="number"
+                      placeholder="e.g., 5.2"
+                      value={formData.customField || ""}
+                      onChange={(e) => handleInputChange("customField", e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
+                {weightCol && (
+                  <div className="space-y-2">
+                    <Label htmlFor="maxWeight">Max Weight Lifted (kg)</Label>
+                    <Input
+                      id="maxWeight"
+                      type="number"
+                      placeholder="e.g., 80"
+                      value={formData.customField || ""}
+                      onChange={(e) => handleInputChange("customField", e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="calories">Calories Burned</Label>
+                  <Input
+                    id="calories"
+                    type="number"
+                    placeholder="e.g., 250"
+                    value={formData.calories}
+                    onChange={(e) => handleInputChange("calories", e.target.value)}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

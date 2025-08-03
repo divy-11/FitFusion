@@ -7,6 +7,7 @@ const authUser = require("../middleware/middleware")
 const activitySchema = z.object({
     userId: z.string(),
     activityType: z.string(),
+    customField: z.number().optional(),
     duration: z.number().positive(),
     caloriesBurned: z.number().optional(),
     notes: z.string().optional(),

@@ -12,6 +12,7 @@ const ActivitySchema = new Schema({
         required: true
     },
     duration: { type: Number }, //MINUTES
+    customField: { type: Number },
     caloriesBurned: { type: Number },
     notes: { type: String },
     timestamp: {

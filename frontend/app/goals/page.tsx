@@ -271,6 +271,7 @@ export default function GoalsPage() {
                       <SelectContent>
                         <SelectItem value="weight_loss">Weight Loss</SelectItem>
                         <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                        <SelectItem value="burn_calories">Burn Calories</SelectItem>
                         <SelectItem value="distance">Distance</SelectItem>
                         <SelectItem value="duration">Duration</SelectItem>
                         <SelectItem value="frequency">Frequency</SelectItem>
@@ -303,10 +304,11 @@ export default function GoalsPage() {
                         <SelectValue placeholder="Select unit" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="calories">Calories</SelectItem>
                         <SelectItem value="kg">Kilograms</SelectItem>
-                        <SelectItem value="lbs">Pounds</SelectItem>
+                        {/* <SelectItem value="lbs">Pounds</SelectItem> */}
                         <SelectItem value="km">Kilometers</SelectItem>
-                        <SelectItem value="miles">Miles</SelectItem>
+                        {/* <SelectItem value="miles">Miles</SelectItem> */}
                         <SelectItem value="minutes">Minutes</SelectItem>
                         <SelectItem value="hours">Hours</SelectItem>
                         <SelectItem value="reps">Repetitions</SelectItem>
