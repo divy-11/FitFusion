@@ -120,7 +120,8 @@ export default function NewActivityPage() {
     setIsLoading(true)
 
     try {
-      if (!updateGoals()) return;
+      const updated = await updateGoals();
+      if (!updated) throw new Error("Goal update failed");
       const token = localStorage.getItem("token")
       // const userId = localStorage.getItem("userId")
 

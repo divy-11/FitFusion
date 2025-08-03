@@ -41,6 +41,7 @@ export default function GoalsPage() {
     description: "",
     fitnessGoal: "",
     targetValue: "",
+    currentValue: "",
     unit: "",
     targetDate: "",
   })
@@ -94,19 +95,25 @@ export default function GoalsPage() {
 
     try {
       const token = localStorage.getItem("token")
-
+      var statusVal = "active"
+      var curVal = Number.parseInt(formData.currentValue) || 0
+      if (formData.targetValue <= formData.currentValue) {
+        statusVal = "completed"
+        curVal = Number.parseInt(formData.targetValue)
+      }
       const goalData = {
         title: formData.title,
         description: formData.description,
         fitnessGoal: formData.fitnessGoal,
         targetValue: Number.parseFloat(formData.targetValue),
-        currentValue: 0,
+        currentValue: curVal,
         unit: formData.unit,
         targetDate: formData.targetDate,
-        status: "active" as const,
+        status: statusVal,
       }
+      console.log(goalData);
 
-      const url = editingGoal ? `/goals/${editingGoal._id}` : "/goals"
+      const url = editingGoal ? `/goals/solo/${editingGoal._id}` : "/goals"
       const method = editingGoal ? "put" : "post";
 
       const response = await api[method](url,
@@ -139,6 +146,7 @@ export default function GoalsPage() {
       description: "",
       fitnessGoal: "",
       targetValue: "",
+      currentValue: "",
       unit: "",
       targetDate: "",
     })
@@ -154,6 +162,7 @@ export default function GoalsPage() {
       description: goal.description,
       fitnessGoal: goal.fitnessGoal,
       targetValue: goal.targetValue.toString(),
+      currentValue: goal.currentValue.toString(),
       unit: goal.unit,
       targetDate: goal.targetDate.split("T")[0], // Format for date input
     })

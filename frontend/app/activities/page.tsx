@@ -144,6 +144,7 @@ export default function ActivitiesPage() {
                 <SelectContent>
                   <SelectItem value="all">All Activities</SelectItem>
                   <SelectItem value="running">Running</SelectItem>
+                  <SelectItem value="workout">Workout (Gym)</SelectItem>
                   <SelectItem value="cycling">Cycling</SelectItem>
                   <SelectItem value="weightlifting">Weightlifting</SelectItem>
                   <SelectItem value="swimming">Swimming</SelectItem>
