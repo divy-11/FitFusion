@@ -64,25 +64,50 @@ app.put('/all', authUser, async (req, res) => {
     try {
         const goals = await Goal.find({ userId: req.user.id })
         for (let goal of goals) {
-            console.log(goal);
-
+            if (goal.status == 'completed' || goal.status == 'paused') {
+                continue
+            }
             switch (goal.fitnessGoal) {
                 case 'burn_calories':
                     goal.currentValue += caloriesBurned
+                    if (goal.currentValue >= goal.targetValue) {
+                        goal.status = 'completed'
+                        goal.currentValue = goal.targetValue
+                    }
                     break;
                 case 'distance':
-                    goal.currentValue += customField
-                    break;
+                    if (activityType == 'running' || activityType == 'hiking' || activityType == 'walking' || activityType == 'cycling') {
+                        goal.currentValue += customField
+                        if (goal.currentValue >= goal.targetValue) {
+                            goal.status = 'completed'
+                            goal.currentValue = goal.targetValue
+                        }
+                        break;
+                    }
                 case 'duration':
                     goal.currentValue += duration
+                    if (goal.currentValue >= goal.targetValue) {
+                        goal.status = 'completed'
+                        goal.currentValue = goal.targetValue
+                    }
                     break;
                 case 'frequency':
                     if (activityType == 'workout') {
                         goal.currentValue++
                     }
+                    if (goal.currentValue >= goal.targetValue) {
+                        goal.status = 'completed'
+                        goal.currentValue = goal.targetValue
+                    }
                     break;
                 case 'strength':
-                    goal.currentValue = Math.max(customField, goal.currentValue)
+                    if (activityType == 'weightlifting') {
+                        goal.currentValue = Math.max(customField, goal.currentValue)
+                        if (goal.currentValue >= goal.targetValue) {
+                            goal.status = 'completed'
+                            goal.currentValue = goal.targetValue
+                        }
+                    }
                     break;
                 default:
                     break;
